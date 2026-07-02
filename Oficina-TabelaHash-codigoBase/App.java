@@ -79,11 +79,7 @@ public class App {
         System.out.println("3 - Pedidos de um produto, em arquivo");
         System.out.println("0 - Sair");
         System.out.print("Digite sua opção: ");
-        try {
-            return Integer.parseInt(teclado.nextLine());
-        } catch (NumberFormatException excecao) {
-            return -1;
-        }
+        return Integer.parseInt(teclado.nextLine());
     }
 
     /**
@@ -138,9 +134,7 @@ public class App {
     static Produto localizarProdutoID() {
         cabecalho();
         System.out.println("LOCALIZANDO POR ID");
-        Integer ID = lerOpcao("Digite o ID para busca", Integer.class);
-        if (ID == null)
-            return null;
+        int ID = lerOpcao("Digite o ID para busca", Integer.class);
         Produto localizado = localizarProduto(produtosPorId, ID);
         mostrarProduto(localizado);
         return localizado;
@@ -148,12 +142,7 @@ public class App {
 
     static <K> Produto localizarProduto(ABB<K, Produto> produtosCadastrados, K chave) {
         cabecalho();
-        Produto localizado = null;
-        try {
-            localizado = produtosCadastrados.pesquisar(chave);
-        } catch (NoSuchElementException excecao) {
-            System.out.println("Produto nao encontrado.");
-        }
+        Produto localizado = produtosCadastrados.pesquisar(chave);
         System.out.println("Tempo: " + produtosCadastrados.getTempo());
         System.out.println("Comparações: " + produtosCadastrados.getComparacoes());
         pausa();
@@ -191,45 +180,28 @@ public class App {
     }
 
     private static void inserirNaTabela(Produto produto, Pedido pedido) {
-        Lista<Pedido> pedidosDoProduto;
-
-        try {
-            pedidosDoProduto = pedidosPorProduto.pesquisar(produto);
-        } catch (NoSuchElementException excecao) {
-            pedidosDoProduto = new Lista<>();
-            pedidosPorProduto.inserir(produto, pedidosDoProduto);
-        }
-
-        pedidosDoProduto.inserir(pedido);
+        // TODO
     }
 
     private static void recortarArvore(ABB<String, Produto> arvore) {
 
         cabecalho();
         System.out.print("Digite ponto de início do filtro: ");
-        String descIni = teclado.nextLine().toLowerCase();
+        String descIni = teclado.nextLine();
         System.out.print("Digite ponto de fim do filtro: ");
-        String descFim = teclado.nextLine().toLowerCase();
+        String descFim = teclado.nextLine();
 
         System.out.println(arvore.recortar(descIni, descFim));
     }
 
     static void pedidosDoProduto(){
         Produto produto = localizarProdutoID();
-        if (produto == null) {
-            System.out.println("Relatorio nao gerado: produto nao encontrado.");
-            return;
-        }
-
         String nomeArquivo = "RelatorioProduto"+produto.hashCode()+".txt";    
         try (FileWriter arquivoRelatorio = new FileWriter(nomeArquivo)){
             Lista<Pedido> listaProd = pedidosPorProduto.pesquisar(produto);
-            arquivoRelatorio.append("Relatorio de pedidos do produto\n");
-            arquivoRelatorio.append(produto + "\n\n");
-            arquivoRelatorio.append(listaProd + "\n");
+            arquivoRelatorio.append(listaProd+"\n");
+            arquivoRelatorio.close();
             System.out.println("Dados salvos em "+nomeArquivo);
-        } catch (NoSuchElementException e) {
-            System.out.println("Nao ha pedidos registrados para o produto informado.");
         } catch (IOException e) {
             System.out.println("Problemas para criar o arquivo "+nomeArquivo+". Tente novamente");
         }
@@ -239,7 +211,7 @@ public class App {
         teclado = new Scanner(System.in, Charset.forName("UTF-8"));
         nomeArquivoDados = "produtos.txt";
         produtosPorId = lerProdutos(nomeArquivoDados, Produto::hashCode);
-        produtosPorNome = new AVL<>(produtosPorId, prod -> prod.descricao.toLowerCase(), String::compareTo);
+        produtosPorNome = new AVL<>(produtosPorId, prod -> prod.descricao, String::compareTo);
         pedidosPorProduto = new TabelaHash<>((int) (quantosProdutos * 1.25));
         gerarPedidos(25000);
 

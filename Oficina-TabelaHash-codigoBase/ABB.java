@@ -64,7 +64,6 @@ public class ABB<K, V> implements IMapeamento<K, V>{
         nova = copiarArvore(original.raiz, funcaoChave, nova);
         this.raiz = nova.raiz;
         this.comparador = comparador;
-        this.tamanho = nova.tamanho;
     
     }
     
@@ -106,12 +105,11 @@ public class ABB<K, V> implements IMapeamento<K, V>{
      */
 	public V pesquisar(K chave) {	
         comparacoes = 0;
-        long inicio = System.nanoTime();
-        try {
-            return pesquisar(raiz, chave);
-        } finally {
-            tempo = System.nanoTime() - inicio;
-        }
+        LocalDateTime inicio = LocalDateTime.now();
+        V item = pesquisar(raiz, chave);
+        LocalDateTime fim = LocalDateTime.now();
+        tempo = Duration.between(inicio, fim).toNanos();
+    	return item; 
     }
     
     private V pesquisar(No<K, V> raizArvore, K procurado) {
@@ -149,9 +147,10 @@ public class ABB<K, V> implements IMapeamento<K, V>{
      */
 	public int inserir(K chave, V item) {
         comparacoes = 0;
-        long inicio = System.nanoTime();
+        LocalDateTime inicio = LocalDateTime.now();
         raiz = inserir(raiz, chave, item);
-        tempo = System.nanoTime() - inicio;
+        LocalDateTime fim = LocalDateTime.now();
+        tempo = Duration.between(inicio, fim).toNanos();
         tamanho++;
 		return tamanho;
 	}
@@ -232,13 +231,9 @@ public class ABB<K, V> implements IMapeamento<K, V>{
      * @return o valor associado ao item removido.
 	 */
 	public V remover(K chave) {
-        comparacoes = 0;
-        long inicio = System.nanoTime();
 		V elemento = pesquisar(raiz, chave);
         //marcar tempo e comparações
         raiz = remover(raiz, chave);
-            tempo = System.nanoTime() - inicio;
-        tamanho--;
 
 		return elemento;
 	}
